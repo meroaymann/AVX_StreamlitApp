@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 # ArabicX-Viz | Streamlit single-file app (organized, interactive UI)
 # Run: streamlit run app.py
-from __future__ import annotations
 
 import io
 
@@ -11,15 +10,21 @@ import os
 import hashlib
 import base64
 
-from typing import Any, Dict, List, Optional, Tuple
+import torch
+import cv2
 
 import numpy as np
 
 import streamlit as st
-from PIL import Image, ImageDraw, ImageFont
-import torch
 
-import cv2
+import arabic_reshaper
+
+from __future__ import annotations
+
+from typing import Any, Dict, List, Optional, Tuple
+
+
+from PIL import Image, ImageDraw, ImageFont
 
 from ultralytics import YOLO
 
@@ -30,10 +35,9 @@ from transformers import (
     ViTImageProcessor,
     AutoTokenizer,
     M2M100ForConditionalGeneration,
-    M2M100Tokenizer,
+    M2M100Tokenizer
 )
 
-import arabic_reshaper
 from bidi.algorithm import get_display
 
 # Optional deps for LIME
