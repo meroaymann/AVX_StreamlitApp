@@ -12,15 +12,8 @@ import hashlib
 import base64
 
 import torch
-try:
-    import cv2
-except Exception as e:
-    cv2 = None
-    import streamlit as st
-    st.warning(
-        "OpenCV is not available in this environment. "
-        "Install opencv-python-headless."
-    )
+
+import cv2
 
 
 import numpy as np
