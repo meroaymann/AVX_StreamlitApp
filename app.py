@@ -12,7 +12,16 @@ import hashlib
 import base64
 
 import torch
-import cv2
+try:
+    import cv2
+except Exception as e:
+    cv2 = None
+    import streamlit as st
+    st.warning(
+        "OpenCV is not available in this environment. "
+        "Install opencv-python-headless."
+    )
+
 
 import numpy as np
 
@@ -134,15 +143,18 @@ def _file_to_data_uri(path: str) -> Optional[str]:
 
 
 def _find_logo_data_uri(size: str = "big") -> Optional[str]:
-    path = (
-        "src\images\ArabicXViz_logo_big.jpeg"
+    filename = (
+        "ArabicXViz_logo_big.jpeg"
         if size == "big"
-        else "src\images\ArabicXViz_logo_small.jpeg"
+        else "ArabicXViz_logo_small.jpeg"
     )
+
+    path = os.path.join("src", "images", filename)
+
     if not os.path.exists(path):
         return None
-    return _file_to_data_uri(path)
 
+    return _file_to_data_uri(path)
 
 
 def inject_pro_ui(logo_big: Optional[str], logo_small: Optional[str]) -> None:
@@ -611,12 +623,16 @@ def yolo_segments(pil_img: Image.Image, conf_thres: float = 0.25) -> List[Dict[s
     res = yolo.predict(bgr, conf=conf_thres, verbose=False)[0]
 
     objs: List[Dict[str, Any]] = []
+
+    # ✅ REQUIRED SAFETY CHECK (you did this correctly)
     if res.masks is None or res.boxes is None:
         return objs
 
-    names = res.names
+    # ✅ SAFE class-name lookup (YOLOv8-compatible)
+    names = getattr(yolo.model, "names", {})
+
     boxes = res.boxes
-    masks = res.masks.data.detach().cpu().numpy()
+    masks = res.masks.data.detach().cpu().numpy().astype(np.float32)
 
     for i in range(masks.shape[0]):
         cls = int(boxes.cls[i].item())
@@ -626,7 +642,10 @@ def yolo_segments(pil_img: Image.Image, conf_thres: float = 0.25) -> List[Dict[s
         xyxy = boxes.xyxy[i].detach().cpu().numpy().tolist()
         x1, y1, x2, y2 = [int(v) for v in xyxy]
 
+        # ✅ Ensure mask is [0,1] float32
         mask01 = resize_mask_to_image(masks[i], W=W, H=H)
+        mask01 = np.clip(mask01, 0.0, 1.0)
+
         objs.append(
             {
                 "i": i + 1,
@@ -639,6 +658,7 @@ def yolo_segments(pil_img: Image.Image, conf_thres: float = 0.25) -> List[Dict[s
         )
 
     return objs
+
 
 
 def score_objects_by_intervention(
