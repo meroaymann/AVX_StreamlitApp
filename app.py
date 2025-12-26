@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 # ArabicX-Viz | Streamlit single-file app (organized, interactive UI)
 # Run: streamlit run app.py
+from __future__ import annotations
 
 import io
 
@@ -19,7 +20,6 @@ import streamlit as st
 
 import arabic_reshaper
 
-from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Tuple
 
