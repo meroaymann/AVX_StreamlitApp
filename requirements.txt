@@ -1,11 +1,11 @@
-streamlit
+streamlit>=1.31
 torch
 torchvision
-transformers
-ultralytics
+transformers>=4.36
+ultralytics>=8.0.200
 opencv-python-headless
 numpy
-pillow
+Pillow
 arabic-reshaper
 python-bidi
 reportlab
